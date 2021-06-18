@@ -127,7 +127,6 @@
         <jmh.version>1.21</jmh.version>
     </properties>
     <modules>
-        <module>janusgraph-grpc</module>
         <module>janusgraph-driver</module>
         <module>janusgraph-core</module>
         <module>janusgraph-server</module>
@@ -136,6 +135,7 @@
         <module>janusgraph-inmemory</module>
         <module>janusgraph-berkeleyje</module>
         <module>janusgraph-cql</module>
+        <module>janusgraph-foundationdb</module>
         <module>janusgraph-hadoop</module>
         <module>janusgraph-hbase</module>
         <module>janusgraph-bigtable</module>
@@ -1163,6 +1163,13 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
                 <version>1.9</version>
+            </dependency>
+
+            <!-- Package FDB -->
+            <dependency>
+                <groupId>org.foundationdb</groupId>
+                <artifactId>fdb-java</artifactId>
+                <version>6.2.22</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

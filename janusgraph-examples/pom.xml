@@ -15,6 +15,7 @@
         <module>example-common</module>
         <module>example-berkeleyje</module>
         <module>example-cql</module>
+        <module>example-foundationdb</module>
         <module>example-hbase</module>
         <module>example-remotegraph</module>
         <module>example-tinkergraph</module>
