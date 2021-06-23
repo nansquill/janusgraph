@@ -153,6 +153,7 @@ public class Backend implements LockerProvider, AutoCloseable {
     private static final Map<StandardStoreManager, ConfigOption<?>> STORE_SHORTHAND_OPTIONS = Collections.unmodifiableMap(new HashMap<StandardStoreManager, ConfigOption<?>>() {{
         put(StandardStoreManager.BDB_JE, STORAGE_DIRECTORY);
         put(StandardStoreManager.CQL, STORAGE_HOSTS);
+        put(StandardStoreManager.FOUNDATION_DB, STORAGE_DIRECTORY);
         put(StandardStoreManager.HBASE, STORAGE_HOSTS);
         //put(StandardStorageBackend.IN_MEMORY, null);
     }});

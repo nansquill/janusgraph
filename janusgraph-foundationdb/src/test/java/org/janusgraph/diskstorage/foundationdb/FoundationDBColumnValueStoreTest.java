@@ -1,7 +1,7 @@
 package org.janusgraph.diskstorage.foundationdb;
 
 import com.google.common.collect.ImmutableMap;
-import org.janusgraph.FoundationDBContainer;
+import org.janusgraph.FDBContainer;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
@@ -14,12 +14,12 @@ public class FoundationDBColumnValueStoreTest extends KeyColumnValueStoreTest {
     //TODO: differ fixed and variable length
 
     @Container
-    public static FoundationDBContainer container = new FoundationDBContainer();
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        FoundationDBStoreManager foundationDBStoreManager = new FoundationDBStoreManager(container.getFoundationDBConfiguration());
-        return new OrderedKeyValueStoreManagerAdapter(foundationDBStoreManager, ImmutableMap.of(storeName, 8));
+        FDBStoreManager fDBStoreManager = new FDBStoreManager(container.getFoundationDBConfiguration());
+        return new OrderedKeyValueStoreManagerAdapter(fDBStoreManager, ImmutableMap.of(storeName, 8));
     }
 
     @Test

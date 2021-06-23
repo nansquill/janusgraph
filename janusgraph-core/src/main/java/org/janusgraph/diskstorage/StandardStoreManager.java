@@ -28,6 +28,7 @@ import java.util.Set;
 public enum StandardStoreManager {
     BDB_JE("org.janusgraph.diskstorage.berkeleyje.BerkeleyJEStoreManager", "berkeleyje"),
     CQL("org.janusgraph.diskstorage.cql.CQLStoreManager", "cql"),
+    FOUNDATION_DB("org.janusgraph.diskstorage.foundationdb.FDBStoreManager", "fdb"),
     HBASE("org.janusgraph.diskstorage.hbase.HBaseStoreManager", "hbase"),
     IN_MEMORY("org.janusgraph.diskstorage.inmemory.InMemoryStoreManager", "inmemory");
 

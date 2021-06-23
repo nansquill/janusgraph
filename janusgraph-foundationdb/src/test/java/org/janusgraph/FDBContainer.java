@@ -2,22 +2,21 @@ package org.janusgraph;
 
 import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
-import org.jetbrains.annotations.NotNull;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 
 import java.net.ServerSocket;
 
-import static org.janusgraph.diskstorage.foundationdb.FoundationDBConfigOptions.CLUSTER_FILE_PATH;
-import static org.janusgraph.diskstorage.foundationdb.FoundationDBConfigOptions.DIRECTORY;
-import static org.janusgraph.diskstorage.foundationdb.FoundationDBConfigOptions.GET_RANGE_MODE;
-import static org.janusgraph.diskstorage.foundationdb.FoundationDBConfigOptions.ISOLATION_LEVEL;
-import static org.janusgraph.diskstorage.foundationdb.FoundationDBConfigOptions.VERSION;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.CLUSTER_FILE_PATH;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.DIRECTORY;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.GET_RANGE_MODE;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.ISOLATION_LEVEL;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.VERSION;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.DROP_ON_CLEAR;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.STORAGE_BACKEND;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.buildGraphConfiguration;
 
-public class FoundationDBContainer extends FixedHostPortGenericContainer<FoundationDBContainer> {
+public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
 
     public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.2.20";
     private static final Integer DEFAULT_PORT = 4500;
@@ -29,11 +28,11 @@ public class FoundationDBContainer extends FixedHostPortGenericContainer<Foundat
     private static final String DEFAULT_NETWORKING_MODE = "host";
     private static final String DEFAULT_VOLUME_SOURCE_PATH = "./fdb";
 
-    public FoundationDBContainer() {
+    public FDBContainer() {
         this(DEFAULT_IMAGE_AND_TAG);
     }
 
-    public FoundationDBContainer(String dockerImageName) {
+    public FDBContainer(String dockerImageName) {
         super(dockerImageName);
         Integer port = findRandomOpenPortOnAllLocalInterfaces();
         this.addFixedExposedPort(port, port);

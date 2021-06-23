@@ -3,8 +3,10 @@ package org.janusgraph.diskstorage.foundationdb;
 import org.janusgraph.diskstorage.configuration.ConfigNamespace;
 import org.janusgraph.diskstorage.configuration.ConfigOption;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+import org.janusgraph.graphdb.configuration.PreInitializeConfigOptions;
 
-public interface FoundationDBConfigOptions {
+@PreInitializeConfigOptions
+public interface FDBConfigOptions {
 
     ConfigNamespace FDB_NS = new ConfigNamespace(
         GraphDatabaseConfiguration.STORAGE_NS,

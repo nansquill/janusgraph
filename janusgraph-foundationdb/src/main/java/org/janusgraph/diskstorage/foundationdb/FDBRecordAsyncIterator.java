@@ -7,17 +7,16 @@ import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.KeySelector;
 
 import java.io.IOException;
 
-public class FoundationDBRecordAsyncIterator extends FoundationDBRecordIterator{
+public class FDBRecordAsyncIterator extends FDBRecordIterator {
 
-
-    private final FoundationDBTransaction transaction;
-    private final FoundationDBRangeQuery rangeQuery;
+    private final FDBTx tx;
+    private final FDBRangeQuery rangeQuery;
     private final AsyncIterator<KeyValue> asyncIterator;
 
-    public FoundationDBRecordAsyncIterator(DirectorySubspace storeDatabase, FoundationDBTransaction transaction, FoundationDBRangeQuery rangeQuery, AsyncIterator<KeyValue> asyncIterator, KeySelector keySelector) {
+    public FDBRecordAsyncIterator(DirectorySubspace storeDatabase, FDBTx transaction, FDBRangeQuery rangeQuery, AsyncIterator<KeyValue> asyncIterator, KeySelector keySelector) {
         super(storeDatabase, asyncIterator, keySelector);
 
-        this.transaction = transaction;
+        this.tx = transaction;
         this.rangeQuery = rangeQuery;
         this.asyncIterator = asyncIterator;
     }

@@ -72,5 +72,4 @@ public abstract class AbstractStoreManager implements StoreManager {
         if (schemaBuilder.isEmpty()) return StaticArrayEntry.EMPTY_SCHEMA;
         return schemaBuilder.toArray(new EntryMetaData[schemaBuilder.size()]);
     }
-
 }

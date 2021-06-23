@@ -14,7 +14,7 @@
 
 package org.janusgraph.diskstorage.foundationdb;
 
-import org.janusgraph.FoundationDBContainer;
+import org.janusgraph.FDBContainer;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
@@ -25,10 +25,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class FoundationDBStoreTest extends KeyValueStoreTest {
 
     @Container
-    public static FoundationDBContainer container = new FoundationDBContainer();
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public OrderedKeyValueStoreManager openStorageManager() throws BackendException {
-        return new FoundationDBStoreManager(container.getFoundationDBConfiguration());
+        return new FDBStoreManager(container.getFoundationDBConfiguration());
     }
 }

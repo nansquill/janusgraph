@@ -104,7 +104,7 @@ public class GraphCentricQueryBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options options = new OptionsBuilder()
-            .include(GraphCentricQueryBenchmark.class.getSimpleName())
+            //.include(GraphCentricQueryBenchmark.class.getSimpleName())
             .warmupIterations(10)
             .measurementIterations(10)
             .build();

@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class FoundationDBRecordIterator implements RecordIterator<KeyValueEntry> {
+public class FDBRecordIterator implements RecordIterator<KeyValueEntry> {
 
     protected Subspace storeDatabase;
     protected Iterator<KeyValue> entries;
@@ -20,7 +20,7 @@ public class FoundationDBRecordIterator implements RecordIterator<KeyValueEntry>
 
     protected KeyValueEntry nextKeyValueEntry;
 
-    public FoundationDBRecordIterator(DirectorySubspace storeDatabase, Iterator<KeyValue> entries, KeySelector selector) {
+    public FDBRecordIterator(DirectorySubspace storeDatabase, Iterator<KeyValue> entries, KeySelector selector) {
         this.storeDatabase = storeDatabase;
         this.entries = entries;
         this.selector = selector;
@@ -59,9 +59,9 @@ public class FoundationDBRecordIterator implements RecordIterator<KeyValueEntry>
     protected void fetchNext() {
         while(nextKeyValueEntry == null && entries.hasNext()) {
             KeyValue keyValue = entries.next();
-            StaticBuffer key = FoundationDBKeyValueStore.getBuffer(storeDatabase.unpack(keyValue.getKey()).getBytes(0));
+            StaticBuffer key = FDBKeyValueStore.getBuffer(storeDatabase.unpack(keyValue.getKey()).getBytes(0));
             if(selector.include(key)) {
-                nextKeyValueEntry = new KeyValueEntry(key, FoundationDBKeyValueStore.getBuffer(keyValue.getValue()));
+                nextKeyValueEntry = new KeyValueEntry(key, FDBKeyValueStore.getBuffer(keyValue.getValue()));
             }
         }
     }
