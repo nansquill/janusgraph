@@ -15,10 +15,17 @@
 package org.janusgraph;
 
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.foundationdb.FDBStoreManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Container;
+import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.ServerSocket;
 
 import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.CLUSTER_FILE_PATH;
@@ -32,6 +39,8 @@ import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.bu
 
 public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
 
+    private final Logger log = LoggerFactory.getLogger(FDBContainer.class);
+
     public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.3.13";
     private static final Integer DEFAULT_PORT = 4500;
     private static final String FDB_CLUSTER_FILE_ENV_KEY = "FDB_CLUSTER_FILE";
@@ -40,7 +49,7 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
     private static final String DEFAULT_CLUSTER_FILE_PARENT_DIR = "/etc/foundationdb";
     private static final String DEFAULT_CLUSTER_FILE_PATH = DEFAULT_CLUSTER_FILE_PARENT_DIR + "/" + "fdb.cluster";
     private static final String DEFAULT_NETWORKING_MODE = "host";
-    private static final String DEFAULT_VOLUME_SOURCE_PATH = "./fdb";
+    private static final String DEFAULT_VOLUME_SOURCE_PATH = "./foundationdb";//"/var/fdb/share";
 
     public FDBContainer() {
         this(DEFAULT_IMAGE_AND_TAG);
@@ -54,10 +63,30 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
         this.addEnv(FDB_CLUSTER_FILE_ENV_KEY, DEFAULT_CLUSTER_FILE_PATH);
         this.addEnv(FDB_PORT_ENV_KEY, port.toString());
         this.addEnv(FDB_NETWORKING_MODE_ENV_KEY, DEFAULT_NETWORKING_MODE);
-        this.withClasspathResourceMapping(DEFAULT_VOLUME_SOURCE_PATH, DEFAULT_CLUSTER_FILE_PARENT_DIR, BindMode.READ_WRITE);
+        this.addFileSystemBind(DEFAULT_VOLUME_SOURCE_PATH, DEFAULT_CLUSTER_FILE_PARENT_DIR, BindMode.READ_WRITE);
+        //this.withClasspathResourceMapping(DEFAULT_VOLUME_SOURCE_PATH, DEFAULT_CLUSTER_FILE_PARENT_DIR, BindMode.READ_WRITE);
     }
 
-    public ModifiableConfiguration getFDBConfiguration() {
+    @Override
+    public void start() {
+        if (this.getContainerId() != null) {
+            // Already started this container.
+            return;
+        }
+        super.start();
+        // initialize the database
+        Container.ExecResult execResult;
+        try {
+            execResult = this.execInContainer("fdbcli", "--exec", "configure new single ssd");
+        } catch (UnsupportedOperationException | IOException | InterruptedException e) {
+            throw new ContainerLaunchException("Container startup failed. Failed to initialize the database.", e);
+        }
+        if (execResult.getExitCode() != 0) {
+            throw new ContainerLaunchException("Container startup failed. Failed to initialize the database. Received non zero exit code from fdbcli command. Response code was: " + execResult.getExitCode() + ".");
+        }
+    }
+
+    public ModifiableConfiguration  getFDBConfiguration() {
         return getFDBConfiguration("janusgraph-test-foundationdb");
     }
 
@@ -77,15 +106,19 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
     private String getAndCheckRangeModeFromTestEnvironment() {
         String mode = System.getProperty("getrangemode");
         if (mode == null) {
+            log.warn("No getrangemode property is chosen, use default value: list to proceed");
             return "list";
         }
         else if (mode.equalsIgnoreCase("iterator")){
+            log.info("getrangemode property is chosen as: iterator");
             return "iterator";
         }
         else if (mode.equalsIgnoreCase("list")){
+            log.info("getrangemode property is chosen as: list");
             return "list";
         }
         else {
+            log.warn("getrange mode property chosen: " +  mode + " does not match supported modes: iterator or list, choose default value: list to proceed");
             return "list";
         }
     }
@@ -94,6 +127,7 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         } catch (Exception e) {
+            log.error("Couldn't open random port, using default port '%d'.", DEFAULT_PORT);
             return DEFAULT_PORT;
         }
     }

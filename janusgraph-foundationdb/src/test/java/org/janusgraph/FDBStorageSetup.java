@@ -31,13 +31,13 @@ public class FDBStorageSetup extends StorageSetup {
 
     public static ModifiableConfiguration getFDBConfiguration(String dir) {
         return buildGraphConfiguration()
-            .set(STORAGE_BACKEND,"fdb")
+            .set(STORAGE_BACKEND,"foundationdb")
             .set(STORAGE_DIRECTORY, dir)
             .set(DROP_ON_CLEAR, false);
     }
 
     public static ModifiableConfiguration getFDBConfiguration() {
-        return getFDBConfiguration(getHomeDir("fdb"));
+        return getFDBConfiguration(getHomeDir("foundationdb"));
     }
 
     public static WriteConfiguration getFDBGraphConfiguration() {

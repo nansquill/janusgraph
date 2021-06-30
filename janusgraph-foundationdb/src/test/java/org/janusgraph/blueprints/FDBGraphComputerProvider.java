@@ -14,16 +14,20 @@
 
 package org.janusgraph.blueprints;
 
+import org.apache.tinkerpop.gremlin.GraphProvider;
+import org.apache.tinkerpop.gremlin.GraphProviderClass;
 import org.janusgraph.FDBContainer;
 import org.janusgraph.StorageSetup;
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
 import org.janusgraph.diskstorage.foundationdb.FDBTx;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+import org.janusgraph.graphdb.olap.computer.FulgoraGraphComputer;
 import org.testcontainers.junit.jupiter.Container;
 
 import java.time.Duration;
 import java.util.Set;
 
+@GraphProvider.Descriptor(computer = FulgoraGraphComputer.class)
 public class FDBGraphComputerProvider extends AbstractJanusGraphComputerProvider {
 
     @Container

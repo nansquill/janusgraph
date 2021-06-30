@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  janusgraph:
+    image: janusgraph/janusgraph:0.6.0
+    build:
+      context: ../services/janusgraph
+      args:
+        VERSION: 0.6.0
+    ports:
+      - "8182:8182"
+    depends_on:
+      - foundationdb
+    volumes:
+      - clusterfile:/etc/foundationdb
+      - /tmp/janusbench/:/tmp/janusbench/
+    environment:
+      - janusgraph.storage.backend=org.janusgraph.diskstorage.foundationdb.FDBStoreManager
+      - janusgraph.storage.hostname=foundationdb
+      - janusgraph.storage.fdb.isolation-level=serializable
+
+      - janusgraph.cache.db-cache=true
+
+  gremlin-client:
+    image: gremlin/gremlin:2.18.1
+    build:
+      context: ../services/gremlin-client
+      args:
+        VERSION: 2.18.1
+    stdin_open: true
+    environment:
+      - GREMLIN_REMOTE_HOSTS=janusgraph
+    depends_on:
+      - janusgraph
+    volumes:
+      - ../services/gremlin-client/src:/data
+
+  foundationdb:
+    image: foundationdb/foundationdb:6.3.13
+    build:
+      context: ../services/foundationdb
+      args:
+        VERSION: 6.3.13
+    environment:
+      - FDB_CLUSTER_FILE=/var/fdb/share/fdb.cluster
+    volumes:
+      - clusterfile:/var/fdb/share
+    ports:
+      - "4500"
+
+volumes:
+  clusterfile:
+    driver: local

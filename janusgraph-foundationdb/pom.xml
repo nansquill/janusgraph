@@ -28,10 +28,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
         <!-- End logging backends. -->
         <!-- Compile Dependencies -->
         <dependency>
