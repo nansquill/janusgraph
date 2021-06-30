@@ -2,35 +2,33 @@ package org.janusgraph.diskstorage.foundationdb;
 
 import com.google.common.collect.ImmutableMap;
 import org.janusgraph.FDBContainer;
+import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
-import org.junit.Test;
 import org.testcontainers.junit.jupiter.Container;
 
-public class FoundationDBColumnValueStoreTest extends KeyColumnValueStoreTest {
+import java.util.concurrent.ExecutionException;
 
-    //TODO: differ fixed and variable length
+public class FDBFixedLengthKCVSTest extends KeyColumnValueStoreTest {
 
     @Container
     public static FDBContainer container = new FDBContainer();
 
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        FDBStoreManager fDBStoreManager = new FDBStoreManager(container.getFoundationDBConfiguration());
-        return new OrderedKeyValueStoreManagerAdapter(fDBStoreManager, ImmutableMap.of(storeName, 8));
+        FDBStoreManager sm = new FDBStoreManager(FDBStorageSetup.getFDBConfiguration());
+        return new OrderedKeyValueStoreManagerAdapter(sm, ImmutableMap.of(storeName, 8));
     }
 
-    @Test
     @Override
-    public void testConcurrentGetSlice() {
-
+    public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
+        super.testConcurrentGetSlice();
     }
 
-    @Test
     @Override
-    public void testConcurrentGetSliceAndMutate() {
-
+    public void testConcurrentGetSliceAndMutate() throws BackendException, ExecutionException, InterruptedException {
+        super.testConcurrentGetSliceAndMutate();
     }
 }

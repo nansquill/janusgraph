@@ -73,6 +73,11 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -80,6 +85,7 @@
                     <systemPropertyVariables>
                         <log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
                         <test.foundationdb.targetdir>${test.foundationdb.targetdir}</test.foundationdb.targetdir>
+                        <excludedGroups>${test.excluded.groups}</excludedGroups>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
@@ -111,4 +117,25 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>janusgraph-release</id>
+
+            <build>
+                <plugins>
+                    <!-- Redeclare gpg-plugin after jar-plugin to force the test jar to be signed.
+                         gpg-plugin runs in the package phase, same as jar-plugin, so the only
+                         constraint that guarantees the jar will exist when gpg-plugin is
+                         invoked is declaration order in the pom. -->
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

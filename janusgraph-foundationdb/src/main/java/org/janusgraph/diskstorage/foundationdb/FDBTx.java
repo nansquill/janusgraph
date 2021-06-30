@@ -27,17 +27,91 @@ public class FDBTx extends AbstractStoreTransaction {
     private volatile Transaction tx;
     private final Database database;
 
-    public FDBTx(Transaction t, BaseTransactionConfig config) {
+    public FDBTx(Transaction tx, BaseTransactionConfig config) {
         super(config);
 
-        tx = t;
-        database = t.getDatabase();
         Preconditions.checkNotNull(this.tx);
+        this.tx = tx;
+        this.database = tx.getDatabase();
     }
 
-    //atomic
+    /* AbstractStoreTransaction implementation */
+
+    @Override
+    public synchronized void commit() throws BackendException {
+        super.commit();
+        if(tx == null) { return; }
+        if(log.isTraceEnabled()) {
+            log.trace("{} committed", this, new TransactionClose(this.toString()));
+        }
+        try {
+            tx.commit().get();
+            tx.close();
+            tx = null;
+            //success
+        } catch (FDBException exception) {
+            //commit_unknown_result or used_during_commit
+            throw new PermanentBackendException("Transaction's commit unknown result or used during commit");
+        } catch (IllegalMonitorStateException exception) {
+            throw new PermanentBackendException("Current thread is not the owner of the object's monitor");
+        } catch (InterruptedException exception) {
+            throw new PermanentBackendException("Current thread interrupted during commit");
+        } catch (RuntimeException exception) {
+            throw new PermanentBackendException("Transaction's rollback in progress");
+        } catch (ExecutionException executionException) {
+            throw new PermanentBackendException("Transaction's execution failed");
+        }
+    }
+
+    @Override
+    public synchronized void rollback() throws BackendException {
+        super.rollback();
+        if(tx == null) { return; }
+        if(log.isTraceEnabled()) {
+            log.trace("{} rollback", this, new TransactionClose(this.toString()));
+        }
+        try {
+            tx.cancel();
+            tx = null;
+        }
+        catch (Exception exception) {
+            throw new PermanentBackendException("Transaction's rollback in progress");
+        }
+    }
+
+    /* AbstractStoreTransaction implementation end */
+
+    /* BaseTransactionConfigurable implementation */
+
+    public Transaction getTransaction() {
+        return tx;
+    }
+
+    /* BaseTransactionConfigurable implementation end */
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + (null == tx ? "nulltx" : tx.toString());
+    }
+
+    private static class TransactionClose extends Exception {
+        private static final long serialVersionUID = 1L;
+
+        private TransactionClose(String msg) {
+            super(msg);
+        }
+    }
+
+    /**
+     * atomics :
+     * byte[] get(byte[] key)
+     * List<KeyValue> getRange(FDBRangeQuery fdbRangeQuery)
+     * void set(byte[] key, byte[] value)
+     * void clear(byte[] key)
+     */
+
     @Nullable
-    public byte[] get(byte[] key) throws PermanentBackendException {
+    public byte[] get(byte[] key) throws BackendException {
         CompletableFuture<byte[]> future = tx.get(key);
         if(future == null) {
             //throw new PermanentBackendException("Transaction key not found on database");
@@ -56,9 +130,8 @@ public class FDBTx extends AbstractStoreTransaction {
         }
     }
 
-    //atomic
     @Nonnull
-    public List<KeyValue> getRange(FDBRangeQuery fdbRangeQuery) throws PermanentBackendException {
+    public List<KeyValue> getRange(FDBRangeQuery fdbRangeQuery) throws BackendException {
         CompletableFuture<List<KeyValue>> result = tx.getRange(fdbRangeQuery.getStartKeySelector(), fdbRangeQuery.getEndKeySelector(), fdbRangeQuery.getLimit()).asList();
         if(result == null) {
             return Collections.emptyList();
@@ -76,8 +149,7 @@ public class FDBTx extends AbstractStoreTransaction {
         }
     }
 
-    //atomic
-    public void set(byte[] key, byte[] value) throws PermanentBackendException {
+    public void set(byte[] key, byte[] value) throws BackendException {
         try {
             tx.set(key, value);
         } catch (IllegalArgumentException exception) {
@@ -89,9 +161,8 @@ public class FDBTx extends AbstractStoreTransaction {
         }
     }
 
-    //atomic
     @Nonnull
-    public void clear(byte[] key) throws PermanentBackendException{
+    public void clear(byte[] key) throws BackendException{
         try {
             tx.clear(key);
         } catch (IllegalArgumentException exception) {
@@ -103,45 +174,4 @@ public class FDBTx extends AbstractStoreTransaction {
         }
     }
 
-    @Override
-    public synchronized void commit() throws BackendException {
-        super.commit();
-        if(tx == null) { return; }
-        if(log.isTraceEnabled()) {
-            log.trace("{} committed", this);
-        }
-        try {
-            CompletableFuture<Void> future = tx.commit();
-            future.wait();
-            return; //success
-        } catch (FDBException exception) {
-            //commit_unknown_result or used_during_commit
-            throw new PermanentBackendException("Transaction's commit unknown result or used during commit");
-        } catch (IllegalMonitorStateException exception) {
-            throw new PermanentBackendException("Current thread is not the owner of the object's monitor");
-        } catch (InterruptedException exception) {
-            throw new PermanentBackendException("Current thread interrupted during commit");
-        } catch (RuntimeException exception) {
-            throw new PermanentBackendException("Transaction's rollback in progress");
-        }
-    }
-
-    @Override
-    public synchronized void rollback() throws BackendException {
-        super.rollback();
-        if(tx == null) { return; }
-        if(log.isTraceEnabled()) {
-            log.trace("{} rollback", this);
-        }
-        try {
-            tx.cancel();
-        }
-        catch (Exception exception) {
-            throw new PermanentBackendException("Transaction's rollback in progress");
-        }
-    }
-
-    public Transaction getTransaction() {
-        return tx;
-    }
 }

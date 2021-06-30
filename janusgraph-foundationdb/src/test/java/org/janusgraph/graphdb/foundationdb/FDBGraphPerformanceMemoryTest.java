@@ -1,9 +1,10 @@
-package org.janusgraph.graphdb.database.management;
+package org.janusgraph.graphdb.foundationdb;
 
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.JanusGraphPerformanceMemoryTest;
 
-public class FDBManagementTest extends ManagementTest {
+public class FDBGraphPerformanceMemoryTest extends JanusGraphPerformanceMemoryTest {
 
     @Override
     public WriteConfiguration getConfiguration() {

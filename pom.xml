@@ -133,6 +133,7 @@
         <module>janusgraph-backend-testutils</module>
         <module>janusgraph-test</module>
         <module>janusgraph-inmemory</module>
+        <module>janusgraph-grpc</module>
         <module>janusgraph-berkeleyje</module>
         <module>janusgraph-cql</module>
         <module>janusgraph-foundationdb</module>

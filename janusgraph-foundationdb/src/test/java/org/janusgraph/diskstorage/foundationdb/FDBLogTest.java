@@ -7,7 +7,7 @@ import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreMa
 import org.janusgraph.diskstorage.log.KCVSLogTest;
 import org.testcontainers.junit.jupiter.Container;
 
-public class FoundationDBLogTest extends KCVSLogTest {
+public class FDBLogTest extends KCVSLogTest {
 
     @Container
     public static FDBContainer container = new FDBContainer();

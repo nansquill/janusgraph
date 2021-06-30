@@ -7,12 +7,10 @@ import com.apple.foundationdb.directory.DirectoryLayer;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.directory.PathUtil;
 import com.google.common.base.Preconditions;
-import com.sleepycat.je.TransactionConfig;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.BaseTransactionConfig;
 import org.janusgraph.diskstorage.PermanentBackendException;
 import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.common.AbstractStoreManager;
 import org.janusgraph.diskstorage.common.LocalStoreManager;
 import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyRange;
@@ -21,8 +19,8 @@ import org.janusgraph.diskstorage.keycolumnvalue.StoreFeatures;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 
 
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.CLUSTER_FILE_PATH;
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.DIRECTORY;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.CLUSTER_FILE_PATH;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.STORAGE_DIRECTORY;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.GRAPH_NAME;
 
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.KVMutation;
@@ -53,12 +51,15 @@ public class FDBStoreManager extends LocalStoreManager implements OrderedKeyValu
 
     public FDBStoreManager(Configuration configuration) throws BackendException{
         super(configuration);
+        //STORAGE_DIRECTORY, STORAGE_ROOT, GRAPH_NAME
+
+
         stores = new HashMap<>();
         fdb = FDB.selectAPIVersion(620);
 
-        rootDirectoryName = (!configuration.has(DIRECTORY) && (configuration.has(GRAPH_NAME))) ?
+        rootDirectoryName = (!configuration.has(STORAGE_DIRECTORY) && (configuration.has(GRAPH_NAME))) ?
             configuration.get(GRAPH_NAME) :
-            configuration.get(DIRECTORY);
+            configuration.get(STORAGE_DIRECTORY);
 
         environment = !"default".equals(configuration.get(CLUSTER_FILE_PATH)) ?
             fdb.open(configuration.get(CLUSTER_FILE_PATH)) : fdb.open();
@@ -79,42 +80,7 @@ public class FDBStoreManager extends LocalStoreManager implements OrderedKeyValu
         log.info("FDBStoreManager initialized");
     }
 
-    private void init() throws BackendException {
-        try {
-            // create the root directory to hold the JanusGraph data
-            rootDirectory = DirectoryLayer.getDefault().createOrOpen(environment, PathUtil.from(rootDirectoryName)).get();
-        } catch (Exception e) {
-            throw new PermanentBackendException(e);
-        }
-    }
-
-    @Override
-    public StoreTransaction beginTransaction(final BaseTransactionConfig config) throws BackendException {
-        try {
-            Transaction tx = null;
-            if(transactional) {
-                tx = environment.createTransaction();
-            }
-            else {
-                if(config instanceof TransactionConfiguration) {
-                    if(!((TransactionConfiguration) config).isSingleThreaded()) {
-                        // Non-transactional cursors can't shared between threads, more info ThreadLocker.checkState
-                        throw new PermanentBackendException("FoundationDB does not support non-transactional for multi threaded tx");
-                    }
-                }
-            }
-            final FDBTx fdbTx = new FDBTx(tx, config);
-
-            if (log.isTraceEnabled()) {
-                log.trace("FoundationDB tx created", new TransactionBegin(fdbTx.toString()));
-            }
-
-            return fdbTx;
-        }
-        catch (Exception exception) {
-            throw new PermanentBackendException("Could not start FoundationDB transaction", exception);
-        }
-    }
+    /* OrderedKeyValueStoreManager implementation */
 
     @Override
     public FDBKeyValueStore openDatabase(String name) throws BackendException {
@@ -161,6 +127,38 @@ public class FDBStoreManager extends LocalStoreManager implements OrderedKeyValu
         }
         catch (Exception exception) {
             throw new PermanentBackendException(exception);
+        }
+    }
+
+    /* OrderedKeyValueStoreManager implementation end */
+
+    /* StoreManager implementation */
+
+    @Override
+    public StoreTransaction beginTransaction(final BaseTransactionConfig config) throws BackendException {
+        try {
+            Transaction tx = null;
+            if(transactional) {
+                tx = environment.createTransaction();
+            }
+            else {
+                if(config instanceof TransactionConfiguration) {
+                    if(!((TransactionConfiguration) config).isSingleThreaded()) {
+                        // Non-transactional cursors can't shared between threads, more info ThreadLocker.checkState
+                        throw new PermanentBackendException("FoundationDB does not support non-transactional for multi threaded tx");
+                    }
+                }
+            }
+            final FDBTx fdbTx = new FDBTx(tx, config);
+
+            if (log.isTraceEnabled()) {
+                log.trace("FoundationDB tx created", new TransactionBegin(fdbTx.toString()));
+            }
+
+            return fdbTx;
+        }
+        catch (Exception exception) {
+            throw new PermanentBackendException("Could not start FoundationDB transaction", exception);
         }
     }
 
@@ -215,27 +213,21 @@ public class FDBStoreManager extends LocalStoreManager implements OrderedKeyValu
     }
 
     @Override
-    public StoreFeatures getFeatures() {
-        return features;
-    }
+    public StoreFeatures getFeatures() { return features; }
 
     @Override
-    public String getName() {
-        return getClass().getSimpleName() + ":" + directory.toString();
-    }
+    public String getName() { return this.toString(); }
 
     @Override
     public List<KeyRange> getLocalKeyPartition() throws BackendException {
         throw new UnsupportedOperationException();
     }
 
-    public void removeDatabase(FDBKeyValueStore fdbKeyValueStore) throws PermanentBackendException {
-        if(!stores.containsKey(fdbKeyValueStore.getName())) {
-            throw new IllegalArgumentException("Tried to remove an unknown database from the storage manager");
-        }
-        String name = fdbKeyValueStore.getName();
-        stores.remove(name);
-        log.debug("Removed database {}", name);
+    /* StoreManager implementation end */
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":" + directory.toString();
     }
 
     private static class TransactionBegin extends Exception {
@@ -245,4 +237,24 @@ public class FDBStoreManager extends LocalStoreManager implements OrderedKeyValu
             super(msg);
         }
     }
+
+    private void init() throws BackendException {
+        try {
+            // create the root directory to hold the JanusGraph data
+            rootDirectory = DirectoryLayer.getDefault().createOrOpen(environment, PathUtil.from(rootDirectoryName)).get();
+        } catch (Exception e) {
+            throw new PermanentBackendException(e);
+        }
+    }
+
+    public void removeDatabase(FDBKeyValueStore fdbKeyValueStore) {
+        if(!stores.containsKey(fdbKeyValueStore.getName())) {
+            throw new IllegalArgumentException("Tried to remove an unknown database from the storage manager");
+        }
+        String name = fdbKeyValueStore.getName();
+        stores.remove(name);
+        log.debug("Removed database {}", name);
+    }
+
+
 }

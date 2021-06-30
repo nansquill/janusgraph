@@ -7,11 +7,11 @@ import org.testcontainers.containers.FixedHostPortGenericContainer;
 
 import java.net.ServerSocket;
 
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.CLUSTER_FILE_PATH;
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.DIRECTORY;
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.GET_RANGE_MODE;
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.ISOLATION_LEVEL;
-import static org.janusgraph.diskstorage.foundationdb.FDBConfigOptions.VERSION;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.CLUSTER_FILE_PATH;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.STORAGE_DIRECTORY;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.GET_RANGE_MODE;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.ISOLATION_LEVEL;
+import static org.janusgraph.diskstorage.foundationdb.FDBConfiguration.VERSION;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.DROP_ON_CLEAR;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.STORAGE_BACKEND;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.buildGraphConfiguration;
@@ -50,7 +50,7 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
     public ModifiableConfiguration getFoundationDBConfiguration(final String graphName) {
         ModifiableConfiguration config = buildGraphConfiguration()
             .set(STORAGE_BACKEND,"org.janusgraph.diskstorage.foundationdb.FoundationDBStoreManager")
-            .set(DIRECTORY, graphName)
+            .set(STORAGE_DIRECTORY, graphName)
             .set(DROP_ON_CLEAR, false)
             .set(CLUSTER_FILE_PATH, "target/test-classes/fdb/fdb.cluster")
             .set(ISOLATION_LEVEL, "read_committed_with_write")

@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.janusgraph.diskstorage.StaticBuffer.ARRAY_FACTORY;
 
-public class FDBKeyValueStore implements OrderedKeyValueStore {
+public class FDBKeyValueStore implements OrderedKeyValueStore, AutoCloseable {
 
     private static final Logger log = LoggerFactory.getLogger(FDBKeyValueStore.class);
 
@@ -41,6 +41,35 @@ public class FDBKeyValueStore implements OrderedKeyValueStore {
         this.isOpen = true;
     }
 
+    /* OrderedKeyValueStore implementation */
+
+    @Override
+    public void insert(StaticBuffer key, StaticBuffer value, StoreTransaction txh, Integer ttl) throws BackendException {
+
+        FDBTx tx = getTransaction(txh);
+        log.trace("db={}, op=insert, tx={}", name, txh);
+        try {
+            tx.set(subspace.pack(key.as(ARRAY_FACTORY)), subspace.pack(value.as(ARRAY_FACTORY)));
+        }
+        catch (Exception exception) {
+            throw new PermanentBackendException(exception);
+        }
+    }
+
+    @Override
+    public RecordIterator<KeyValueEntry> getSlice(KVQuery query, StoreTransaction txh) throws BackendException {
+        return null;
+    }
+
+    @Override
+    public Map<KVQuery, RecordIterator<KeyValueEntry>> getSlices(List<KVQuery> queries, StoreTransaction txh) throws BackendException {
+        return null;
+    }
+
+    /* OrderedKeyValueStore implementation end */
+
+    /* KeyValueStore implementation */
+
     @Override
     public void delete(StaticBuffer key, StoreTransaction txh) throws BackendException {
         log.trace("Deletion");
@@ -48,8 +77,6 @@ public class FDBKeyValueStore implements OrderedKeyValueStore {
         try {
             log.trace("db={}, op=delete, tx={}", name, txh);
             tx.clear(subspace.pack(key.as(ARRAY_FACTORY)));
-        } catch (PermanentBackendException exception) {
-            throw exception;
         }
         catch (Exception exception) {
             throw new PermanentBackendException(exception);
@@ -70,8 +97,8 @@ public class FDBKeyValueStore implements OrderedKeyValueStore {
                 return getBuffer(entry);
             }
             return null;
-        } catch (PermanentBackendException exception) {
-            throw exception;
+        } catch (Exception exception) {
+            throw new PermanentBackendException(exception);
         }
     }
 
@@ -116,34 +143,9 @@ public class FDBKeyValueStore implements OrderedKeyValueStore {
         isOpen = false;
     }
 
-    @Override
-    public void insert(StaticBuffer key, StaticBuffer value, StoreTransaction txh, Integer ttl) throws BackendException {
+    /* KeyValueStore implementation end */
 
-        FDBTx tx = getTransaction(txh);
-
-        log.trace("db={}, op=insert, tx={}", name, txh);
-
-        try {
-            tx.set(subspace.pack(key.as(ARRAY_FACTORY)), subspace.pack(value.as(ARRAY_FACTORY)));
-        } catch (PermanentBackendException exception) {
-            throw exception;
-        }
-        catch (Exception exception) {
-            throw new PermanentBackendException(exception);
-        }
-    }
-
-    @Override
-    public RecordIterator<KeyValueEntry> getSlice(KVQuery query, StoreTransaction txh) throws BackendException {
-        return null;
-    }
-
-    @Override
-    public Map<KVQuery, RecordIterator<KeyValueEntry>> getSlices(List<KVQuery> queries, StoreTransaction txh) throws BackendException {
-        return null;
-    }
-
-    private FDBTx getTransaction(StoreTransaction txh) {
+    private static FDBTx getTransaction(StoreTransaction txh) {
         Preconditions.checkArgument(txh != null);
         return (FDBTx) txh;
     }

@@ -28,10 +28,7 @@ public class FDBRecordIterator implements RecordIterator<KeyValueEntry> {
         nextKeyValueEntry = null;
     }
 
-    @Override
-    public void close() throws IOException {
-
-    }
+    /* RecordIterator implementation */
 
     @Override
     public boolean hasNext() {
@@ -55,6 +52,13 @@ public class FDBRecordIterator implements RecordIterator<KeyValueEntry> {
     public void remove() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void close() throws IOException {
+
+    }
+
+    /* RecordIterator implementation end */
 
     protected void fetchNext() {
         while(nextKeyValueEntry == null && entries.hasNext()) {

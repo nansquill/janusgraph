@@ -26,7 +26,7 @@ public class FDBStorageSetup extends StorageSetup {
         return getFDBConfiguration(getHomeDir("fdb"));
     }
 
-    public static WriteConfiguration getBerkeleyJEGraphConfiguration() {
+    public static WriteConfiguration getFDBGraphConfiguration() {
         return getFDBConfiguration().getConfiguration();
     }
 
