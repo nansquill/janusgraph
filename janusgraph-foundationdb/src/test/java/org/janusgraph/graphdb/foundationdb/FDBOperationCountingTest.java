@@ -4,7 +4,9 @@ import io.github.artsok.RepeatedIfExceptionsTest;
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphOperationCountingTest;
+import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 
 public class FDBOperationCountingTest extends JanusGraphOperationCountingTest {
 
@@ -23,4 +25,9 @@ public class FDBOperationCountingTest extends JanusGraphOperationCountingTest {
     public void resetCounts() {
         resetMetrics(); // Metrics is a singleton, so subsequents test runs have wrong counts if we don't clean up.
     }
+
+    @Test
+    @Disabled
+    @Override
+    public void testCacheConcurrency() {}
 }

@@ -68,6 +68,13 @@ public class FDBGraphTest extends JanusGraphTest {
         testVertexCentricQuery(1450 /*noVertices*/);
     }
 
+    @Test
+    @Override
+    public void testVertexCentricQuery() {
+        // updated to not exceed FDB transaction commit limit
+        testVertexCentricQuery(1000 /*noVertices*/);
+    }
+
     @Override
     public void testConsistencyEnforcement() {
         // Check that getConfiguration() explicitly set serializable isolation

@@ -2,6 +2,7 @@ package org.janusgraph;
 
 import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.foundationdb.FDBStoreManager;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 
@@ -18,7 +19,7 @@ import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.bu
 
 public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
 
-    public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.2.20";
+    public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.3.13";
     private static final Integer DEFAULT_PORT = 4500;
     private static final String FDB_CLUSTER_FILE_ENV_KEY = "FDB_CLUSTER_FILE";
     private static final String FDB_NETWORKING_MODE_ENV_KEY = "FDB_NETWORKING_MODE";
@@ -43,13 +44,13 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
         this.withClasspathResourceMapping(DEFAULT_VOLUME_SOURCE_PATH, DEFAULT_CLUSTER_FILE_PARENT_DIR, BindMode.READ_WRITE);
     }
 
-    public Configuration getFoundationDBConfiguration() {
-        return getFoundationDBConfiguration("janusgraph-test-foundationdb");
+    public ModifiableConfiguration getFDBConfiguration() {
+        return getFDBConfiguration("janusgraph-test-foundationdb");
     }
 
-    public ModifiableConfiguration getFoundationDBConfiguration(final String graphName) {
+    public ModifiableConfiguration getFDBConfiguration(final String graphName) {
         ModifiableConfiguration config = buildGraphConfiguration()
-            .set(STORAGE_BACKEND,"org.janusgraph.diskstorage.foundationdb.FoundationDBStoreManager")
+            .set(STORAGE_BACKEND, FDBStoreManager.class.getName())
             .set(STORAGE_DIRECTORY, graphName)
             .set(DROP_ON_CLEAR, false)
             .set(CLUSTER_FILE_PATH, "target/test-classes/fdb/fdb.cluster")

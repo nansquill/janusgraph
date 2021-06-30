@@ -14,7 +14,7 @@ public class FDBLogTest extends KCVSLogTest {
 
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        FDBStoreManager fDBStoreManager = new FDBStoreManager(container.getFoundationDBConfiguration());
+        FDBStoreManager fDBStoreManager = new FDBStoreManager(container.getFDBConfiguration());
         return new OrderedKeyValueStoreManagerAdapter(fDBStoreManager);
     }
 }

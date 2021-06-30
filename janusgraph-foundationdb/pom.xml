@@ -10,11 +10,14 @@
     <url>https://janusgraph.org</url>
     
     <properties>
-        <foundationdb.version>6.2.22</foundationdb.version>
+        <foundationdb.version>6.3.13</foundationdb.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <testcontainers.version>1.14.3</testcontainers.version>
         <top.level.basedir>${basedir}/..</top.level.basedir>
         <test.foundationdb.targetdir>${basedir}/target</test.foundationdb.targetdir>
+        <test.skip.default>false</test.skip.default>
+        <test.skip.tp>true</test.skip.tp>
+        <testcontainers.version>1.15.3</testcontainers.version>
     </properties>
     
     <dependencies>
@@ -56,11 +59,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
