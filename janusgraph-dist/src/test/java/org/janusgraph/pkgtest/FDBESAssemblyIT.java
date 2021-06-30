@@ -12,22 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package org.janusgraph.diskstorage.foundationdb;
+package org.janusgraph.pkgtest;
 
-import org.janusgraph.FDBContainer;
-import org.janusgraph.FDBStorageSetup;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.KeyValueStoreTest;
-import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
+import org.janusgraph.diskstorage.es.JanusGraphElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-public class FDBKeyValueTest extends KeyValueStoreTest {
+@Testcontainers
+public class FDBESAssemblyIT extends AbstractJanusGraphAssemblyIT {
 
     @Container
-    public static FDBContainer container = new FDBContainer();
+    private static JanusGraphElasticsearchContainer es = new JanusGraphElasticsearchContainer(true);
 
     @Override
-    public OrderedKeyValueStoreManager openStorageManager() throws BackendException {
-        return new FDBStoreManager(FDBStorageSetup.getFDBConfiguration());
+    protected String getConfigPath() {
+        return "conf/janusgraph-foundationdb-es.properties";
+    }
+
+    @Override
+    protected String getServerConfigPath() {
+        return "conf/gremlin-server/gremlin-server-foundationdb-es.yaml";
+    }
+
+    @Override
+    protected String getGraphName() {
+        return "foundationdb";
     }
 }
