@@ -16,11 +16,11 @@ version: "3"
 
 services:
   janusgraph:
-    image: janusgraph/janusgraph:0.6.0
+    image: janusgraph/janusgraph:0.6.0-FDB-SNAPSHOT
     build:
       context: ../services/janusgraph
       args:
-        VERSION: 0.6.0
+        VERSION: 0.6.0-FDB-SNAPSHOT
     ports:
       - "8182:8182"
     depends_on:
@@ -55,11 +55,11 @@ services:
       - ../services/gremlin-client/src:/data
 
   foundationdb:
-    image: foundationdb/foundationdb:6.3.13
+    image: foundationdb/foundationdb:6.3.15
     build:
       context: ../services/foundationdb
       args:
-        VERSION: 6.3.13
+        VERSION: 6.3.15
     environment:
       - FDB_CLUSTER_FILE=/var/fdb/share/fdb.cluster
     volumes:

@@ -15,18 +15,25 @@
 package org.janusgraph.graphdb.foundationdb;
 
 import io.github.artsok.RepeatedIfExceptionsTest;
+import org.janusgraph.FDBContainer;
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphOperationCountingTest;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class FDBOperationCountingTest extends JanusGraphOperationCountingTest {
+
+    @Container
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return FDBStorageSetup.getFDBGraphConfiguration();
+        return container.getFDBGraphConfiguration();
     }
 
     @Override

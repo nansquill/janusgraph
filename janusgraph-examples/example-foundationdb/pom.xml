@@ -29,6 +29,7 @@
 
     <properties>
         <example.main.class>org.janusgraph.example.JanusGraphApp</example.main.class>
+        <example.config>${project.basedir}/conf/jgex-foundationdb.properties</example.config>
         <logback.config>${project.basedir}/conf/logback.xml</logback.config>
     </properties>
 

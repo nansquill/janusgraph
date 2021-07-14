@@ -14,13 +14,20 @@
 
 package org.janusgraph.graphdb.database.management;
 
+import org.janusgraph.FDBContainer;
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class FDBManagementTest extends ManagementTest {
+
+    @Container
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return FDBStorageSetup.getFDBGraphConfiguration();
+        return container.getFDBGraphConfiguration();
     }
 }

@@ -14,14 +14,21 @@
 
 package org.janusgraph.graphdb.foundationdb;
 
+import org.janusgraph.FDBContainer;
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.olap.OLAPTest;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class FDBOLAPTest extends OLAPTest {
+
+    @Container
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return FDBStorageSetup.getFDBGraphConfiguration();
+        return container.getFDBGraphConfiguration();
     }
 }

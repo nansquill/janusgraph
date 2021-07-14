@@ -42,6 +42,7 @@ public class JanusGraphApp extends GraphApp {
     protected static final String CQL = "cql";
     protected static final String HBASE = "hbase";
     protected static final String INMEMORY = "inmemory";
+    protected static final String FOUNDATION_DB = "foundationdb";
 
     // Index backends
 

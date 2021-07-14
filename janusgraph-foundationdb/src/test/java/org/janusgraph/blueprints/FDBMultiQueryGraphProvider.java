@@ -26,6 +26,7 @@ public class FDBMultiQueryGraphProvider extends FDBGraphProvider {
 
     @Override
     public ModifiableConfiguration getJanusGraphConfiguration(String graphName, Class<?> test, String testMethodName) {
+        container.start();
         return super.getJanusGraphConfiguration(graphName, test, testMethodName).set(GraphDatabaseConfiguration.USE_MULTIQUERY, true);
     }
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
 package org.janusgraph.graphdb;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -26,10 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class FDBTransactionTest {
+class FDBTransactionTest {
 
     static {
-
     }
 
     @Test
@@ -63,3 +63,4 @@ public class FDBTransactionTest {
         assertThrows(ExecutionException.class, future::get);
     }
 }
+**/

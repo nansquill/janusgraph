@@ -82,14 +82,20 @@ public class JanusGraphServer {
         try {
             logger.info("Configuring JanusGraph Server from {}", confPath);
             janusGraphSettings = JanusGraphSettings.read(confPath);
+            logger.info("Found janusgraphsettings {}", janusGraphSettings);
             gremlinServer = new GremlinServer(janusGraphSettings);
+            logger.info("Found gremlinServer {}", gremlinServer);
             CompletableFuture<Void> grpcServerFuture = CompletableFuture.completedFuture(null);
             if (janusGraphSettings.getGrpcServer().isEnabled()) {
+                logger.info("Found gremlinServer.getGrpcsServer enabled {}", janusGraphSettings.getGrpcServer().isEnabled());
                 grpcServerFuture = CompletableFuture.runAsync(() -> {
                     GraphManager graphManager = gremlinServer.getServerGremlinExecutor().getGraphManager();
+                    logger.info("Found graphManager {}", graphManager);
                     grpcServer = createGrpcServer(janusGraphSettings, graphManager);
+                    logger.info("Found grpc Server {}", grpcServer);
                     try {
                         grpcServer.start();
+                        logger.info("Found grpcserver.start {}", true);
                     } catch (IOException e) {
                         throw new IllegalStateException(e);
                     }
@@ -97,7 +103,9 @@ public class JanusGraphServer {
             }
             CompletableFuture<Void> gremlinServerFuture = gremlinServer.start()
                 .thenAcceptAsync(JanusGraphServer::configure);
+            logger.info("Found gremlinserver.start {}", true);
             serverStarted = CompletableFuture.allOf(gremlinServerFuture, grpcServerFuture);
+            logger.info("Found gremlinserver.start rly {}", serverStarted);
         } catch (Exception ex) {
             serverStarted.completeExceptionally(ex);
         }

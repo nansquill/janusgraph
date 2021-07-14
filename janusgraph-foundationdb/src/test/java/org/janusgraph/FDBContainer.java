@@ -24,7 +24,6 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -37,11 +36,12 @@ import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.DR
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.STORAGE_BACKEND;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.buildGraphConfiguration;
 
+
 public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
 
     private final Logger log = LoggerFactory.getLogger(FDBContainer.class);
 
-    public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.3.13";
+    public static final String DEFAULT_IMAGE_AND_TAG = "foundationdb/foundationdb:6.3.15";
     private static final Integer DEFAULT_PORT = 4500;
     private static final String FDB_CLUSTER_FILE_ENV_KEY = "FDB_CLUSTER_FILE";
     private static final String FDB_NETWORKING_MODE_ENV_KEY = "FDB_NETWORKING_MODE";
@@ -49,7 +49,7 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
     private static final String DEFAULT_CLUSTER_FILE_PARENT_DIR = "/etc/foundationdb";
     private static final String DEFAULT_CLUSTER_FILE_PATH = DEFAULT_CLUSTER_FILE_PARENT_DIR + "/" + "fdb.cluster";
     private static final String DEFAULT_NETWORKING_MODE = "host";
-    private static final String DEFAULT_VOLUME_SOURCE_PATH = "./foundationdb";//"/var/fdb/share";
+    private static final String DEFAULT_VOLUME_SOURCE_PATH = "./fdb";//"./foundationdb";//"/var/fdb/share";
 
     public FDBContainer() {
         this(DEFAULT_IMAGE_AND_TAG);
@@ -92,7 +92,7 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
 
     public ModifiableConfiguration getFDBConfiguration(final String graphName) {
         ModifiableConfiguration config = buildGraphConfiguration()
-            .set(STORAGE_BACKEND, FDBStoreManager.class.getName())
+            .set(STORAGE_BACKEND, "org.janusgraph.diskstorage.foundationdb.FDBStoreManager")
             .set(STORAGE_DIRECTORY, graphName)
             .set(DROP_ON_CLEAR, false)
             .set(CLUSTER_FILE_PATH, "target/test-classes/fdb/fdb.cluster")
@@ -130,5 +130,9 @@ public class FDBContainer extends FixedHostPortGenericContainer<FDBContainer> {
             log.error("Couldn't open random port, using default port '%d'.", DEFAULT_PORT);
             return DEFAULT_PORT;
         }
+    }
+
+    public WriteConfiguration getFDBGraphConfiguration() {
+        return getFDBConfiguration().getConfiguration();
     }
 }

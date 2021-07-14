@@ -21,9 +21,11 @@ import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.concurrent.ExecutionException;
 
+@Testcontainers
 public class FDBVariableLengthKCVSTest extends KeyColumnValueStoreTest {
 
     @Container
@@ -31,7 +33,7 @@ public class FDBVariableLengthKCVSTest extends KeyColumnValueStoreTest {
 
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        FDBStoreManager sm = new FDBStoreManager(FDBStorageSetup.getFDBConfiguration());
+        FDBStoreManager sm = new FDBStoreManager(container.getFDBConfiguration());
         return new OrderedKeyValueStoreManagerAdapter(sm);
     }
 

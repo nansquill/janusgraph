@@ -20,7 +20,9 @@ import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class FDBKeyValueTest extends KeyValueStoreTest {
 
     @Container
@@ -28,6 +30,6 @@ public class FDBKeyValueTest extends KeyValueStoreTest {
 
     @Override
     public OrderedKeyValueStoreManager openStorageManager() throws BackendException {
-        return new FDBStoreManager(FDBStorageSetup.getFDBConfiguration());
+        return new FDBStoreManager(container.getFDBConfiguration());
     }
 }

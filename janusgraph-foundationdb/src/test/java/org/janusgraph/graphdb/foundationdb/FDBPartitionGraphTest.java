@@ -14,15 +14,22 @@
 
 package org.janusgraph.graphdb.foundationdb;
 
+import org.janusgraph.FDBContainer;
 import org.janusgraph.FDBStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphPartitionGraphTest;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class FDBPartitionGraphTest extends JanusGraphPartitionGraphTest {
+
+    @Container
+    public static FDBContainer container = new FDBContainer();
 
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return FDBStorageSetup.getFDBGraphConfiguration();
+        return container.getFDBGraphConfiguration();
     }
 
     /*
